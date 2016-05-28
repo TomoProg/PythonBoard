@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.template import loader
 from django.contrib import auth
 from django.contrib.auth.models import User
@@ -53,8 +53,12 @@ def contact(request):
 def detail(request, topic_id):
     """ detail.html view """
     template = loader.get_template('PythonBoard/detail/detail.html')
-    topic_title = Topic.objects.get(pk=topic_id).title
-    topic_detail_list = TopicDetail.objects.filter(title=topic_id).order_by('register_datetime')
+    try:
+        topic_title = Topic.objects.get(pk=topic_id).title
+        topic_detail_list = TopicDetail.objects.filter(title=topic_id).order_by('register_datetime')
+    except Topic.DoesNotExist:
+        raise Http404
+
     context = {
         'signin_username': request.user.username,
         'topic_title': topic_title,
